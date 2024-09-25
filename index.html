@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./main.js" defer></script>
+</head>
+
+<body>
+    <div class="container-v">
+        <div>
+            <div class="tabs-wrapper">
+                <div class="tab" onclick="setActive(this)">Параметри</div>
+                <div class="tab" onclick="setActive(this)">По марці</div>
+            </div>
+
+            <!-- Блок з фільтрами -->
+            <div class="filter-container">
+                <h3>Фільтр</h3>
+
+                <!-- Фільтр ціни -->
+                <div class="filter-wrapper">
+                    <label class="filter-label" for="min-price">Ціна</label>
+                    <div class="price-inputs">
+                        <input type="number" id="min-price" value="1999">
+                        <span>-</span>
+                        <input type="number" id="max-price" value="94999">
+                        <button class="filter-button">Ok</button>
+                    </div>
+                    <div class="price-range">
+                        <input type="range" id="min-range" min="1000" max="100000" value="1999">
+                        <input type="range" id="max-range" min="1000" max="100000" value="94999">
+                    </div>
+                </div>
+
+                <!-- Повторення блоку для решти фільтрів -->
+
+            </div>
+        </div>
+
+        <!-- Основний блок з картками товарів -->
+        <div class="wrapper">
+            <input class="wrapper__input" type="text" id="searchInput" placeholder="Введите модель телефона" />
+
+            <div class="cards">
+                <div class="card">
+                    <div class="card__images">
+                        <img src="img/iphone13.jpg" alt="iPhone 13" />
+                    </div>
+                    <div class="card__hr"></div>
+                    <p class="card__title">iPhone 13</p>
+                    <p class="card__descr">
+                        iPhone 13 - це нова модель телефону від Apple із передовими
+                        технологіями та функціям.
+                    </p>
+                    <div class="card__rating">
+                        <div class="rating__span">
+                            <span>&#9733;</span>
+                            <span>&#9733;</span>
+                            <span>&#9733;</span>
+                            <span>&#9733;</span>
+                            <span>&#9733;</span>
+                        </div>
+                        <div class="card__comment">(23 відгуки)</div>
+                    </div>
+                    <div class="card__m">
+                        <div class="card__m-left">
+                            <div class="card__m-text">Ціна</div>
+                            <div class="card__m-money">2000$</div>
+                        </div>
+                        <div class="card__m-left">
+                            <div class="card__m-text">Зі скидкою</div>
+                            <div class="card__m-money">
+                                <mark>1 800$</mark><span>200$</span>
+                            </div>
+                        </div>
+                    </div>
+                    <img class="img-svg" src="img/0012.svg" alt="Icon 0012" />
+                    <img class="img-b5" src="img/b5.svg" alt="Icon b5" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Кнопки під картками -->
+    <button class="show">показати ще</button>
+    <button class="btn-close dn">закрити</button>
+    <pre id="api-response"></pre>
+</body>
+
+</html>

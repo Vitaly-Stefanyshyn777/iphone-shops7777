@@ -1,0 +1,849 @@
+/* Загальний контейнер фільтра */
+.filter-container {
+  width: 316px; /* Встановлює фіксовану ширину контейнера фільтрів */
+  background-color: #fff; /* Білий фон для контейнера */
+  border-radius: 8px; /* Закруглені кути контейнера */
+  padding: 20px; /* Внутрішні відступи контейнера */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Тінь під контейнером для додання глибини */
+  border-radius: 15px;
+}
+
+/* Заголовок */
+h3 {
+  font-size: 18px; /* Розмір шрифту заголовків */
+  margin-bottom: 10px; /* Відступ знизу для розділення від наступного елемента */
+  margin-left: 16px;
+}
+
+/* Фільтр вкладок */
+.tabs-wrapper {
+  display: flex; /* Використання flexbox для розташування вкладок в ряд */
+  justify-content: space-between; /* Розподіляє вкладки рівномірно з простором між ними */
+  width: 300px; /* Ширина контейнера для вкладок */
+  margin: 38px auto; /* Центрування контейнера по горизонталі з відступом зверху і знизу */
+}
+
+.tab {
+  font-family: "SFProDisplay-Bold", sans-serif; /* Встановлює жирний шрифт для вкладок */
+  font-size: 16px; /* Розмір шрифту для вкладок */
+  color: #c4c4c4; /* Світло-сірий колір тексту вкладок */
+  cursor: pointer; /* Курсор у вигляді вказівника при наведенні */
+  text-transform: uppercase; /* Перетворює текст на великі літери */
+  transition: color 0.3s ease; /* Плавна зміна кольору при наведенні */
+  padding: 10px 20px; /* Відступи всередині вкладок для зручності кліку */
+  text-align: center; /* Центрування тексту всередині вкладки */
+}
+
+.tab.active {
+  color: #2f3035; /* Темно-сірий колір тексту для активної вкладки */
+  font-weight: bold; /* Жирний текст для активної вкладки */
+  border-bottom: 2px solid #2f3035; /* Підкреслення активної вкладки */
+}
+
+/* Загальний контейнер фільтра брендів та кольорів */
+.filter-wrapper {
+  background-color: #fff; /* Білий фон для кожного фільтра */
+  border-radius: 10px; /* Закруглені кути для фільтрів */
+  margin-bottom: 15px; /* Відступ знизу між фільтрами */
+  border-bottom: 1.5px solid #f0f0f0; /* Сірий нижній бордер для розділення фільтрів */
+  padding: 20px; /* Внутрішні відступи для фільтрів */
+  box-sizing: border-box; /* Включає padding і border у загальну ширину та висоту елемента */
+}
+
+/* Заголовок фільтра */
+.filter-header {
+  display: flex; /* Використання flexbox для розташування елементів заголовка */
+  justify-content: space-between; /* Розподіляє заголовок і іконку по краях */
+  align-items: center; /* Вирівнює елементи по вертикалі по центру */
+  padding: 15px; /* Внутрішні відступи заголовка фільтра */
+  cursor: pointer; /* Курсор у вигляді вказівника при наведенні */
+  transition: all 0.3s; /* Плавні переходи для всіх змін властивостей */
+}
+
+.filter-header h3 {
+  font-size: 16px; /* Розмір шрифту заголовка фільтра */
+  font-weight: 500; /* Напівжирний шрифт для заголовка */
+  margin: 0; /* Відсутність зовнішніх відступів */
+}
+
+.toggle-icon {
+  font-size: 16px; /* Розмір іконки перемикача */
+  transition: transform 0.3s; /* Плавна зміна трансформації іконки */
+  color: #888; /* Сірий колір іконки */
+}
+
+/* Стилі для тіла фільтра */
+.filter-body {
+  max-height: 1000px; /* Максимальна висота, коли фільтр відкритий */
+  overflow: hidden; /* Приховує зайвий контент, що виходить за межі */
+  transition: max-height 0.4s ease-out, padding 0.4s ease-out; /* Плавні переходи для зміни висоти та padding */
+  padding: 15px; /* Внутрішні відступи тіла фільтра */
+  display: flex; /* Використання flexbox для розташування опцій вертикально */
+  flex-direction: column; /* Розташування опцій у колонку */
+  gap: 10px; /* Відстань між опціями фільтра */
+}
+
+.filter-body.hidden {
+  max-height: 0; /* Висота 0, коли фільтр закритий */
+  padding: 0 15px; /* Відступи зверху і знизу 0, з боків 15px */
+}
+
+/* Стилі для опцій фільтра */
+.filter-option {
+  display: flex; /* Використання flexbox для розташування чекбокса і тексту */
+  align-items: center; /* Вирівнювання елементів по вертикалі */
+  padding: 5px 0; /* Вертикальні відступи для опцій */
+}
+
+.filter-option input[type="checkbox"] {
+  margin-right: 10px; /* Відступ праворуч від чекбокса */
+}
+
+.color-circle {
+  width: 20px; /* Ширина кола кольору */
+  height: 20px; /* Висота кола кольору */
+  border-radius: 50%; /* Робить елемент круглим */
+  margin-right: 10px; /* Відступ праворуч від кола */
+}
+
+/* Додаткові стилі для інших фільтрів (ціна, бренд тощо) */
+.price-filter,
+.filter-brand {
+  display: flex; /* Використання flexbox для вертикального розташування */
+  flex-direction: column; /* Розташування дочірніх елементів у колонку */
+  margin-bottom: 20px; /* Відступ знизу між фільтрами */
+}
+
+.price-inputs {
+  display: flex; /* Використання flexbox для розташування елементів у ряд */
+  align-items: center; /* Вирівнювання елементів по вертикалі */
+  margin-bottom: 10px; /* Відступ знизу для розділення елементів */
+}
+
+.price-inputs input[type="number"] {
+  width: 80px; /* Ширина числового поля */
+  padding: 5px; /* Внутрішні відступи для числового поля */
+  border: 1px solid #e1e1e1; /* Сірий бордер для числового поля */
+  border-radius: 10px; /* Закруглені кути для числового поля */
+  text-align: center; /* Центрування тексту всередині числового поля */
+  margin-right: 5px; /* Відступ праворуч від числового поля */
+  font-size: 14px; /* Розмір шрифту для числового поля */
+}
+
+.price-inputs span {
+  margin: 0 5px; /* Горизонтальні відступи зліва і справа від тексту "до" */
+  font-size: 16px; /* Розмір шрифту для тексту */
+}
+
+.filter-button {
+  background-color: #ff6b00; /* Оранжевий фон кнопки фільтрації */
+  color: white; /* Білий колір тексту на кнопці */
+  border: none; /* Без рамки */
+  border-radius: 20px; /* Закруглені кути кнопки */
+  padding: 5px 10px; /* Внутрішні відступи кнопки */
+  cursor: pointer; /* Курсор у вигляді вказівника при наведенні */
+  font-size: 14px; /* Розмір шрифту кнопки */
+  transition: background-color 0.3s ease; /* Плавна зміна фону при наведенні */
+  margin-left: 13px;
+}
+
+.filter-button:hover {
+  background-color: #e65a00; /* Темніший оранжевий колір при наведенні */
+}
+
+.price-range {
+  position: relative; /* Відносне позиціювання для розташування елементів всередині */
+  margin-top: 10px; /* Відступ зверху */
+}
+
+.price-range input[type="range"] {
+  width: 100%; /* Ширина повзунка дорівнює ширині контейнера */
+  -webkit-appearance: none; /* Вимикає стандартний стиль для браузерів WebKit */
+  background: transparent; /* Прозорий фон для повзунка */
+}
+
+.price-range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Вимикає стандартний стиль для повзунка в браузерах WebKit */
+  height: 20px; /* Висота повзунка */
+  width: 20px; /* Ширина повзунка */
+  background-color: #ff6b00; /* Оранжевий колір повзунка */
+  border-radius: 50%; /* Круглий повзунок */
+  cursor: pointer; /* Курсор у вигляді вказівника при наведенні */
+}
+
+.price-range input[type="range"]::-moz-range-thumb {
+  height: 20px; /* Висота повзунка для Firefox */
+  width: 20px; /* Ширина повзунка для Firefox */
+  background-color: #ff6b00; /* Оранжевий колір повзунка для Firefox */
+  border-radius: 50%; /* Круглий повзунок для Firefox */
+  cursor: pointer; /* Курсор у вигляді вказівника при наведенні */
+}
+
+input[type="range"] {
+  width: 100%; /* Ширина повзунка */
+  height: 8px; /* Висота треку повзунка */
+  background: #ddd; /* Світло-сірий трек повзунка */
+  border-radius: 5px; /* Закруглені кути треку */
+  outline: none; /* Вимикає обводку при фокусі */
+}
+
+.show-more {
+  margin-top: 10px; /* Відступ зверху для посилання "Показати більше" */
+}
+
+.show-more-link {
+  font-size: 14px; /* Розмір шрифту для посилання */
+  color: #007bff; /* Синій колір тексту для посилання */
+  cursor: pointer; /* Курсор у вигляді вказівника при наведенні */
+  text-decoration: none; /* Відсутність підкреслення */
+}
+
+.show-more-link:hover {
+  text-decoration: underline; /* Підкреслення при наведенні */
+}
+
+/* ------------------------------------------------------------------------------------- */
+
+/* Стилі для акордеону (якщо є) */
+.accordion__content {
+  display: block; /* Відображає контент акордеону за замовчуванням */
+  overflow: hidden; /* Приховує зайвий контент, що виходить за межі */
+  transition: max-height 0.3s ease-out; /* Плавна зміна висоти акордеону */
+  max-height: 1000px; /* Максимальна висота контенту акордеону */
+}
+
+.accordion__content:not(.active) {
+  max-height: 0; /* Висота 0, коли акордеон закритий */
+  display: none; /* Повністю приховує контент акордеону */
+}
+
+.accordion__block.active .plus {
+  transform: rotate(
+    45deg
+  ); /* Поворот іконки плюсу при активному стані акордеону */
+}
+
+.plus.rotate {
+  transform: rotate(45deg); /* Поворот іконки плюсу при відкритті */
+}
+
+.filter-label {
+  background-color: #fff;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  box-sizing: border-box;
+  display: block;
+  font-size: 1.17em;
+}
+
+/* --------------------------------------------------------------------------------------------------------------------------------- */
+
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  /* font-size: 62.5%; */
+  font-size: 65.5%
+}
+
+body {
+  font-weight: 400;
+  font-style: normal;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.7rem;
+  color: black;
+  background-color: #fbfbfb;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+/* header */
+/* General Styles */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+/* Header */
+.header {
+  background-color: #f9f9f9;
+}
+
+.header_top {
+  border-bottom: 1px solid #ddd;
+  padding: 20px 0;
+}
+
+.basket_num {
+  /* position: absolute; */
+  font-family: "SFProDisplay-Medium", sans-serif;
+  font-weight: 500;
+  color: #fff;
+  font-size: 10px;
+  line-height: 20px;
+  width: 20px;
+  height: 20px;
+  background-color: #1c62cd;
+  border-radius: 50%;
+  text-align: center;
+
+  /* Центрування іконки відносно батьківського елемента */
+  /* top: 0;
+    right: 0;
+    /*  */
+  transform: translate(50%, -50%);
+}
+.header__top__iner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 125px;
+}
+
+.menu {
+  display: flex;
+}
+
+.menu__list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu__item {
+  margin-right: 50px;
+}
+
+.menu__link {
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+}
+
+.menu__link:hover {
+  color: #f05a28;
+}
+
+.logo {
+  margin: 0 auto;
+}
+
+.logo__img {
+  max-height: 500px;
+}
+
+.header__box {
+  display: flex;
+  align-items: center;
+}
+
+.header__adress {
+  font-size: 14px;
+  color: #555;
+  margin-right: 20px;
+}
+
+.user-list {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.user-list__item {
+  margin-left: 20px;
+}
+
+.user-list_link {
+  text-decoration: none;
+  font-size: 16px;
+  color: #000;
+}
+
+.user-list_link i {
+  font-size: 18px;
+}
+
+.cart-count {
+  font-size: 12px;
+  background-color: #f05a28;
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 6px;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+}
+
+/* Bottom Navigation */
+.heder_bottom {
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+  padding: 15px 0;
+}
+
+.menu-categories {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-categories__item {
+  margin-right: 20px;
+}
+
+.menu-categories-link {
+  text-decoration: none;
+  font-size: 14px;
+  color: #000;
+}
+
+.menu-categories-link.active {
+  color: #f05a28;
+  font-weight: bold;
+}
+
+.menu-categories-link:hover {
+  color: #f05a28;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .header__top__iner {
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    margin: 0 0 15px;
+  }
+
+  .menu__list {
+    justify-content: center;
+    width: 100%;
+    padding: 10px 0;
+  }
+
+  .header__box {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header__adress {
+    margin-bottom: 10px;
+  }
+
+  .user-list {
+    justify-content: center;
+  }
+
+  .user-list__item {
+    margin-left: 15px;
+  }
+
+  .menu-categories {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .menu-categories__item {
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .menu__list {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .menu__item {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .header__top__iner {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .logo {
+    margin: 15px 0;
+  }
+
+  .header__adress {
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  .user-list {
+    justify-content: center;
+  }
+
+  .heder_bottom {
+    padding: 10px 0;
+  }
+
+  .menu-categories__item {
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+
+  .menu-categories-link {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu__link {
+    font-size: 14px;
+  }
+
+  .menu-categories-link {
+    font-size: 12px;
+  }
+
+  .header__adress {
+    font-size: 12px;
+  }
+
+  .cart-count {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+}
+/* header */
+
+/* слайдер */
+/* Контейнер слайдера */
+.product-slider-block {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  /* overflow: hidden; */
+  padding: 20px 0;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+/* Слайдер з картками */
+.product-slider {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  gap: 15px; /* Відстань між картками */
+}
+
+/* Окремі картки продуктів */
+.product-slide {
+  flex: 1;
+  min-width: 100px; /* Ширина кожної картки */
+  text-align: center;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.product-slide img {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.product-slide h3 {
+  font-size: 14px;
+  color: #333;
+}
+
+/* Кнопки навігації */
+.prev-button,
+.next-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.prev-button {
+  left: -65px;
+}
+
+.next-button {
+  right: -65px;
+}
+
+/* Ефект для навігаційних кнопок */
+.product-slider-block:hover .prev-button,
+.product-slider-block:hover .next-button {
+  opacity: 1;
+}
+
+.prev-button,
+.next-button {
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+/* При наведенні кнопки стають більш видимими */
+.prev-button:hover,
+.next-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  opacity: 1;
+}
+/* слайдер */
+
+.wrapper__input {
+  padding: 1rem;
+  border: 0.2rem solid #999;
+  border-radius: 0.5rem;
+  font-size: 2rem;
+  margin-bottom: 5rem;
+}
+
+.wrapper {
+  margin: 1rem;
+  display: grid;
+  justify-content: end;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(27rem, 1fr));
+  grid-gap: 1rem;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.card {
+  position: relative;
+  border: 0.1rem solid #e5e5e5;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card__images {
+  width: 25rem;
+  height: 25rem;
+  margin: 0 auto;
+  margin-bottom: 2rem;
+}
+
+.card__images img {
+  width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.card__hr {
+  height: 0.1rem;
+  background: #e5e5e5;
+  margin-bottom: 2rem;
+}
+
+.card__title {
+  color: #52a3dc;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.card__descr {
+  color: #999;
+  font-size: 1.8rem;
+  line-height: 2.5rem;
+  margin-bottom: 1rem;
+  height: 15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card__rating {
+  display: flex;
+  align-items: center;
+  column-gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.rating__span {
+  color: #f14635;
+  font-size: 2rem;
+}
+
+.card__comment {
+  color: #52a3dc;
+}
+
+.card__m {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card__m-left {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.card__m-text {
+  color: #999;
+  font-size: 1.7rem;
+}
+
+.card__m-money {
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.card__m-left mark {
+  margin-right: 1rem;
+}
+
+.card__m-money span {
+  color: #999;
+  font-size: 1.5rem;
+}
+
+.img-svg {
+  width: 8rem;
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+}
+
+.img-b5 {
+  width: 8rem;
+  position: absolute;
+  top: 8rem;
+  left: 2rem;
+}
+
+.show {
+  display: block;
+  cursor: pointer;
+  border: none;
+  background-color: #999;
+  padding: 1.5rem 4rem;
+  margin: 0 auto;
+  border-radius: 0.4rem;
+  font-size: 1.9rem;
+  color: #fff;
+  transition: all 0.5s ease-in-out;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.show:hover {
+  background-color: #f14635;
+  padding: 1.5rem 10rem;
+}
+
+/* Виправлення для кнопки "Закрити", перейменовано на .btn-close */
+.btn-close {
+  display: block;
+  background-color: #999;
+  border: none;
+  color: #fff;
+  padding: 1rem 3rem;
+  font-size: 2rem;
+  text-transform: capitalize;
+  border-radius: 0.4rem;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.btn-close:hover {
+  background-color: #f14635;
+  padding: 1rem 3.5rem;
+}
+
+.dn {
+  display: none;
+}
+
+.db {
+  display: block;
+}
+
+/* модальне вікно */
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  /* background-color: rgba(0, 0, 0, 0.5); */
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* Оригінальний .close для модального вікна */
+.modal .close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.modal .close:hover,
+.modal .close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+/* ---------- */
+.container-v {
+    display: flex;
+    /* justify-content: space-between;  */
+    /* Розташовує блоки з простором між ними */
+    align-items: flex-start; /* Вирівнює блоки по верхній частині */
+    padding: 20px;
+    background-color: #f9f9f9;
+    justify-content: center;
+}
