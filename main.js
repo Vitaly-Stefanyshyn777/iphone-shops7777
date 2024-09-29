@@ -1,52 +1,241 @@
-// Функція для встановлення активної вкладки
-function setActive(element) {
-  // Видаляємо клас 'active' з усіх вкладок
-  const tabs = document.querySelectorAll(".tab");
-  tabs.forEach((tab) => tab.classList.remove("active"));
+"use strict";
 
-  // Додаємо клас 'active' до вибраної вкладки
-  element.classList.add("active");
+// Глобальні змінні
+let currentPage = 1;
+const productsPerPage = 21;
+let totalProducts = 0;
+let isLoading = false;
+let isResettingFilters = false; // Додаємо флаг для скидання фільтрів
+
+// Базова URL-адреса вашого API
+const BASE_URL = "http://localhost:3000/api/smartphones";
+
+// Елементи DOM
+const showButton = document.querySelector(".show");
+const btnCloseButton = document.querySelector(".btn-close");
+const cardsContainer = document.querySelector(".cards");
+const searchInput = document.getElementById("searchInput");
+const apiResponseElement = document.getElementById("api-response");
+const loadingIndicator = document.getElementById("loading"); // Індикатор завантаження
+
+// Мапа між заголовками фільтрів і ключами для запиту
+const filterKeyMap = {
+  Бренди: "brand",
+  "Операційна система": "os",
+  Колір: "color",
+  "Тип SIM-карти": "simType",
+  "Кількість модулів камери": "numberOfCameras", // Змінено з "cameraModules"
+  "Запис відео": "videoResolution", // Змінено з "videoRecording"
+  "Матеріал корпусу": "bodyMaterial",
+  "Ємність акумулятора": "batteryCapacity",
+  "Швидка зарядка": "fastCharging",
+  "Фронтальна камера": "frontCamera",
+  "Діагональ екрану": "screenSize",
+  "Роздільна здатність екрану": "screenResolution",
+  "Основна камера": "mainCamera",
+  "Кількість SIM-карт": "simCount",
+  "Оперативна пам'ять": "ram",
+  "Внутрішня пам'ять": "storage", // Змінено з "internalMemory"
+};
+
+// Структура для зберігання поточних фільтрів
+const selectedFilters = {
+  brand: [],
+  os: [],
+  color: [],
+  simType: [],
+  numberOfCameras: [], // Змінено відповідно до filterKeyMap
+  videoResolution: [], // Змінено відповідно до filterKeyMap
+  bodyMaterial: [],
+  batteryCapacity: [],
+  fastCharging: [],
+  frontCamera: [],
+  screenSize: [],
+  screenResolution: [],
+  mainCamera: [],
+  simCount: [],
+  ram: [],
+  storage: [], // Змінено відповідно до filterKeyMap
+  minPrice: null,
+  maxPrice: null,
+  search: "",
+};
+
+// Клас для створення карток продуктів
+class AddCard {
+  addCard(product) {
+    const { imagePath, model, description, reviews, price, discount } = product;
+    return `
+      <div class="card" data-id="${product.id}">
+        <div class="card__images">
+          <img src="${imagePath}" alt="${model}" />
+        </div>
+        <div class="card__hr"></div>
+        <p class="card__title">${model}</p>
+        <p class="card__descr">${description}</p>
+        <div class="card__rating">
+          <div class="rating__span">
+            ${"&#9733;".repeat(5)}
+          </div>
+          <div class="card__comment">(${reviews} відгуків)</div>
+        </div>
+        <div class="card__m">
+          <div class="card__m-left">
+            <div class="card__m-text">Ціна</div>
+            <div class="card__m-money">${price}$</div>
+          </div>
+          <div class="card__m-left">
+            <div class="card__m-text">Зі знижкою</div>
+            <div class="card__m-money">
+              <mark>${price - discount}$</mark><span>${discount}$</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 }
 
-// Змінні для синхронізації діапазонів ціни та введення ціни
-const minPriceInput = document.getElementById("min-price");
-const maxPriceInput = document.getElementById("max-price");
-const minRange = document.getElementById("min-range");
-const maxRange = document.getElementById("max-range");
+const cardCreator = new AddCard();
 
-// Перевіряємо, чи існують елементи перед додаванням обробників подій
-if (minRange && maxRange && minPriceInput && maxPriceInput) {
-  minRange.addEventListener("input", function () {
-    // Синхронізація значення мінімальної ціни з повзунком
-    minPriceInput.value = this.value;
+// Функція для побудови рядка запиту на основі фільтрів
+function buildQueryString() {
+  const params = new URLSearchParams();
+
+  // Додаємо фільтри з selectedFilters
+  Object.keys(selectedFilters).forEach((key) => {
+    if (selectedFilters[key]) {
+      if (
+        Array.isArray(selectedFilters[key]) &&
+        selectedFilters[key].length > 0
+      ) {
+        params.append(key, selectedFilters[key].join(","));
+      } else if (["minPrice", "maxPrice", "search"].includes(key)) {
+        if (selectedFilters[key]) {
+          params.append(key, selectedFilters[key]);
+        }
+      }
+    }
   });
 
-  maxRange.addEventListener("input", function () {
-    // Синхронізація значення максимальної ціни з повзунком
-    maxPriceInput.value = this.value;
-  });
+  // Додаємо пагінацію
+  params.append("page", currentPage);
+  params.append("limit", productsPerPage);
 
-  minPriceInput.addEventListener("input", function () {
-    // Синхронізація повзунка з введенням мінімальної ціни
-    minRange.value = this.value;
-  });
-
-  maxPriceInput.addEventListener("input", function () {
-    // Синхронізація повзунка з введенням максимальної ціни
-    maxRange.value = this.value;
-  });
+  return params.toString();
 }
+
+// Функція для отримання продуктів з API
+// Функція для отримання продуктів з API
+async function fetchProducts() {
+  if (isLoading) return; // Уникаємо повторних запитів
+  isLoading = true;
+
+  if (loadingIndicator) {
+    loadingIndicator.classList.remove("dn"); // Показати індикатор
+  }
+
+  const queryString = buildQueryString();
+  console.log(`Запит до API: ${BASE_URL}?${queryString}`); // Для відладки
+
+  try {
+    const response = await fetch(`${BASE_URL}?${queryString}`);
+
+    // Логування статусу відповіді
+    console.log("Статус відповіді:", response.status);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json(); // Пробуй розпарсити відповідь
+
+    // Перевіряємо, чи правильно повернуті дані
+    if (!data || typeof data !== "object") {
+      throw new Error("Невірна структура даних");
+    }
+
+    console.log("Отримані дані з API:", data); // Лог для відладки отриманих даних
+
+    if (data.products && Array.isArray(data.products)) {
+      totalProducts = data.total;
+
+      if (currentPage === 1) {
+        cardsContainer.innerHTML = ""; // Очищаємо контейнер лише при першому завантаженні або новому запиті
+      }
+
+      if (data.products.length === 0 && currentPage === 1) {
+        cardsContainer.innerHTML = "<p>Немає доступних продуктів.</p>";
+      } else {
+        data.products.forEach((product) => {
+          cardsContainer.insertAdjacentHTML(
+            "beforeend",
+            cardCreator.addCard(product)
+          );
+        });
+      }
+
+      // Оновлюємо стан кнопок
+      if (
+        currentPage * productsPerPage >= totalProducts ||
+        data.products.length === 0
+      ) {
+        showButton.classList.add("dn");
+        btnCloseButton.classList.remove("dn");
+      } else {
+        showButton.classList.remove("dn");
+        btnCloseButton.classList.add("dn");
+      }
+
+      // Оновлюємо поточну сторінку для наступного завантаження
+      currentPage++;
+    } else {
+      throw new Error(
+        "Очікувався масив продуктів, отримано: " + JSON.stringify(data)
+      );
+    }
+  } catch (error) {
+    console.error("Помилка запиту до API:", error.message || error);
+    if (currentPage === 1) {
+      cardsContainer.innerHTML = "<p>Помилка завантаження даних</p>";
+      showButton.classList.add("dn");
+      btnCloseButton.classList.remove("dn");
+    }
+  } finally {
+    isLoading = false;
+
+    if (loadingIndicator) {
+      loadingIndicator.classList.add("dn"); // Приховати індикатор
+    }
+  }
+}
+// Функція для застосування фільтрів
+function applyFilters() {
+  currentPage = 1; // Скидаємо сторінку при новому фільтрі
+  fetchProducts();
+}
+
+// Дебаунс функція
+function debounce(func, delay) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+// Ініціалізація фільтрів на сторінці та завантаження продуктів при завантаженні сторінки
 document.addEventListener("DOMContentLoaded", () => {
   const filterContainer = document.querySelector(".filter-container");
 
-  // Початковий масив з фільтрами (приклад масиву)
-  const filters = [
+  // Початковий масив з фільтрами (ваш масив)
+  const filterData = [
     {
       title: "Бренди",
       options: [
         { name: "Apple", count: 274 },
         { name: "Samsung", count: 301 },
-        { name: "Xiaom", count: 116 },
+        { name: "Xiaomi", count: 116 },
         { name: "Motorola", count: 64 },
         { name: "Meizu", count: 77 },
       ],
@@ -59,15 +248,14 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "EMUI", count: 7 },
       ],
     },
-    // Додайте інші фільтри тут...
     {
       title: "Колір",
       options: [
-        { name: "Бронзовий", value: "#cd7f32", count: 1 },
-        { name: "Рожеве золото", value: "#f4c2c2", count: 3 },
-        { name: "Синій", value: "blue", count: 96 },
-        { name: "Золотий", value: "gold", count: 73 },
-        { name: "Червоний", value: "red", count: 23 },
+        { name: "Bronze", value: "#cd7f32", count: 1 },
+        { name: "Rose gold", value: "#f4c2c2", count: 3 },
+        { name: "blue", value: "blue", count: 96 },
+        { name: "gold", value: "gold", count: 73 },
+        { name: "red", value: "red", count: 23 },
       ],
     },
     {
@@ -76,14 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "Micro-SIM", count: 3 },
         { name: "Nano-SIM", count: 1434 },
         { name: "e-SIM", count: 304 },
-      ],
-    },
-    {
-      title: "Частота оновлення екрану",
-      options: [
-        { name: "60 Гц", count: 74 },
-        { name: "90 Гц", count: 310 },
-        { name: "120 Гц", count: 562 },
       ],
     },
     {
@@ -105,8 +285,8 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       title: "Матеріал корпусу",
       options: [
-        { name: "Метал", count: 450 },
-        { name: "Скло", count: 651 },
+        { name: "Metal", count: 450 },
+        { name: "Glass", count: 651 },
       ],
     },
     {
@@ -120,17 +300,17 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       title: "Швидка зарядка",
       options: [
-        { name: "Так", count: 879 },
-        { name: "33 Вт", count: 106 },
-        { name: "45 Вт", count: 31 },
+        { name: "No", count: 879 },
+        { name: "33 W", count: 106 },
+        { name: "45 W", count: 31 },
       ],
     },
     {
       title: "Фронтальна камера",
       options: [
-        { name: "5 Мп", count: 181 },
-        { name: "8 Мп", count: 238 },
-        { name: "13 Мп", count: 111 },
+        { name: "5 Mp", count: 181 },
+        { name: "8 Mp", count: 238 },
+        { name: "15 Mp", count: 111 },
       ],
     },
     {
@@ -151,9 +331,9 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       title: "Основна камера",
       options: [
-        { name: "200 Мп", count: 39 },
-        { name: "108 Мп", count: 146 },
-        { name: "48 Мп", count: 167 },
+        { name: "200 Mp", count: 39 },
+        { name: "108 Mp", count: 146 },
+        { name: "48 Mp", count: 167 },
       ],
     },
     {
@@ -166,34 +346,43 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       title: "Оперативна пам'ять",
       options: [
-        { name: "4 ГБ", count: 339 },
-        { name: "6 ГБ", count: 317 },
-        { name: "8 ГБ", count: 423 },
+        { name: "4 GB", count: 339 },
+        { name: "6 GB", count: 317 },
+        { name: "8 GB", count: 423 },
       ],
     },
     {
       title: "Внутрішня пам'ять",
       options: [
-        { name: "32 ГБ", count: 76 },
-        { name: "64 ГБ", count: 193 },
-        { name: "128 ГБ", count: 486 },
+        { name: "32 GB", count: 76 },
+        { name: "64 GB", count: 193 },
+        { name: "128 GB", count: 486 },
       ],
     },
   ];
-  filters.forEach((filter, index) => {
-    // Створюємо блок для фільтра
+
+  // Побудова фільтрів на сторінці
+  filterData.forEach((filter) => {
     const filterWrapper = document.createElement("div");
     filterWrapper.classList.add("filter-wrapper");
 
-    // Створюємо заголовок фільтра
     const filterHeader = document.createElement("div");
     filterHeader.classList.add("filter-header");
+
     const filterTitle = document.createElement("h3");
     filterTitle.innerText = filter.title;
     filterHeader.appendChild(filterTitle);
 
+    const toggleIcon = document.createElement("span");
+    toggleIcon.classList.add("toggle-icon");
+    toggleIcon.innerHTML = "&#9650;"; // Значок вгору за замовчуванням (фільтр відкритий)
+    filterHeader.appendChild(toggleIcon);
+
     const filterBody = document.createElement("div");
     filterBody.classList.add("filter-body");
+
+    // Отримуємо ключ для цього фільтра
+    const filterKey = filterKeyMap[filter.title];
 
     // Додаємо чекбокси для кожної опції
     filter.options.forEach((option) => {
@@ -202,142 +391,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (filter.title === "Колір" && option.value) {
         filterOption.innerHTML = `
-          <input type="checkbox" value="${
-            option.name
-          }" data-filter="${filter.title.toLowerCase()}">
-          <span class="color-circle" style="background-color: ${
-            option.value
-          };"></span>
-          ${option.name} (${option.count})
-        `;
-      } else {
-        filterOption.innerHTML = `
-          <input type="checkbox" value="${
-            option.name
-          }" data-filter="${filter.title.toLowerCase()}">
-          ${option.name} (${option.count})
-        `;
-      }
-
-      filterBody.appendChild(filterOption);
-    });
-
-    filterWrapper.appendChild(filterHeader);
-    filterWrapper.appendChild(filterBody);
-    filterContainer.appendChild(filterWrapper);
-  });
-
-  // Додаємо обробники подій для чекбоксів
-  document
-    .querySelectorAll('.filter-option input[type="checkbox"]')
-    .forEach((checkbox) => {
-      checkbox.addEventListener("change", applyFilters); // Коли чекбокси змінюються, запускаємо фільтрацію
-    });
-});
-
-// Функція для фільтрації продуктів на основі обраних фільтрів
-function applyFilters() {
-  const selectedFilters = {
-    brand: Array.from(
-      document.querySelectorAll('input[data-filter="бренди"]:checked')
-    ).map((cb) => cb.value),
-    os: Array.from(
-      document.querySelectorAll(
-        'input[data-filter="операційна система"]:checked'
-      )
-    ).map((cb) => cb.value),
-    color: Array.from(
-      document.querySelectorAll('input[data-filter="колір"]:checked')
-    ).map((cb) => cb.value),
-  };
-
-  const filteredProducts = products.filter((product) => {
-    const brandMatch =
-      selectedFilters.brand.length === 0 ||
-      selectedFilters.brand.includes(product.brand);
-    const osMatch =
-      selectedFilters.os.length === 0 ||
-      selectedFilters.os.includes(product.os);
-    const colorMatch =
-      selectedFilters.color.length === 0 ||
-      selectedFilters.color.includes(product.color);
-
-    return brandMatch && osMatch && colorMatch;
-  });
-
-  displayProducts(filteredProducts); // Відображення фільтрованих продуктів
-}
-
-// Функція для відображення продуктів
-function displayProducts(productsArray) {
-  const productContainer = document.querySelector(".product-list");
-  productContainer.innerHTML = ""; // Очищуємо контейнер перед виведенням
-
-  if (productsArray.length === 0) {
-    productContainer.innerHTML = "<p>Немає результатів</p>";
-  } else {
-    productsArray.forEach((product) => {
-      productContainer.innerHTML += `<p>${product.model} - ${product.price}$</p>`;
-    });
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const filterContainer = document.querySelector(".filter-container");
-
-  // Проходимося по кожному фільтру з масиву
-  filters.forEach((filter, index) => {
-    // Створення обгортки для фільтра
-    const filterWrapper = document.createElement("div");
-    filterWrapper.classList.add("filter-wrapper");
-
-    // Створення заголовку фільтра
-    const filterHeader = document.createElement("div");
-    filterHeader.classList.add("filter-header");
-
-    // Створення тексту заголовку
-    const filterTitle = document.createElement("h3");
-    filterTitle.innerText = filter.title;
-
-    // Створення іконки для заголовку
-    const toggleIcon = document.createElement("span");
-    toggleIcon.classList.add("toggle-icon");
-    toggleIcon.innerHTML = "&#9650;"; // Значок вгору за замовчуванням (фільтр відкритий)
-
-    // Додавання заголовку та іконки до заголовка фільтра
-    filterHeader.appendChild(filterTitle);
-    filterHeader.appendChild(toggleIcon);
-
-    // Створення тіла фільтра
-    const filterBody = document.createElement("div");
-    filterBody.classList.add("filter-body"); // Фільтр відкритий за замовчуванням
-
-    // Додавання опцій до тіла фільтра
-    filter.options.forEach((option) => {
-      const filterOption = document.createElement("label");
-      filterOption.classList.add("filter-option");
-
-      // Додавання колірної кулі, якщо фільтр за кольором
-      if (filter.title === "Колір" && option.value) {
-        filterOption.innerHTML = `
-          <input type="checkbox" name="color${index}" value="${option.name}"> 
+          <input type="checkbox" value="${option.name}" data-filter="${filterKey}">
           <span class="color-circle" style="background-color: ${option.value};"></span>
           ${option.name} (${option.count})
         `;
       } else {
         filterOption.innerHTML = `
-          <input type="checkbox" name="${filter.title
-            .toLowerCase()
-            .replace(/\s+/g, "-")}${index}" value="${option.name}"> 
+          <input type="checkbox" value="${option.name}" data-filter="${filterKey}">
           ${option.name} (${option.count})
         `;
       }
 
-      // Додавання опції до тіла фільтра
       filterBody.appendChild(filterOption);
     });
 
-    // Збірка повного фільтра та додавання його до контейнера фільтрів
     filterWrapper.appendChild(filterHeader);
     filterWrapper.appendChild(filterBody);
     filterContainer.appendChild(filterWrapper);
@@ -345,240 +412,89 @@ document.addEventListener("DOMContentLoaded", () => {
     // Додавання обробника кліку для розгортання/згортання фільтра
     filterHeader.addEventListener("click", () => {
       filterBody.classList.toggle("hidden"); // Перемикання класу 'hidden'
-
-      // Зміна іконки в залежності від стану фільтра
       toggleIcon.innerHTML = filterBody.classList.contains("hidden")
         ? "&#9660;"
         : "&#9650;"; // Стрілка вниз або вгору
     });
   });
-});
-("use strict");
 
-// const showButton = document.querySelector(".show");
-// const btnCloseButton = document.querySelector(".btn-close");
-// const cardsContainer = document.querySelector(".cards");
-// const input = document.getElementById("searchInput");
-// let currentIndex = 0; // Додаємо оголошення для currentIndex
+  // Додаємо обробники подій для чекбоксів
+  document
+    .querySelectorAll('.filter-option input[type="checkbox"]')
+    .forEach((checkbox) => {
+      checkbox.addEventListener("change", (e) => {
+        if (isResettingFilters) return; // Пропускаємо, якщо відбувається скидання фільтрів
 
-// // ----------------------------------------------------------------чіткий шлях--------------------------------------------------------
-fetch("http://localhost:3000/api/smartphones") // Замініть на вашу реальну URL-адресу API
-  .then((response) => response.json())
-  .then((data) => {
-    // Перевіряємо, чи існує поле products і чи воно є масивом
-    if (Array.isArray(data.products)) {
-      const products = data.products; // Отримуємо масив продуктів з об'єкта
-      const cardsContainer = document.querySelector(".cards");
-      cardsContainer.innerHTML = ""; // Очищаємо контейнер перед додаванням нових карток
+        const filterType = e.target.getAttribute("data-filter");
+        const filterValue = e.target.value;
 
-      products.forEach((product) => {
-        const cardHTML = `
-          <div class="card">
-            <div class="card__images">
-              <img src="${product.imagePath}" alt="${product.model}" />
-            </div>
-            <div class="card__hr"></div>
-            <p class="card__title">${product.model}</p>
-            <p class="card__descr">${product.description}</p>
-            <div class="card__rating">
-              <div class="rating__span">
-                <span>&#9733;</span>
-                <span>&#9733;</span>
-                <span>&#9733;</span>
-                <span>&#9733;</span>
-                <span>&#9733;</span>
-              </div>
-              <div class="card__comment">(${product.reviews} відгуків)</div>
-            </div>
-            <div class="card__m">
-              <div class="card__m-left">
-                <div class="card__m-text">Ціна</div>
-                <div class="card__m-money">${product.price}$</div>
-              </div>
-              <div class="card__m-left">
-                <div class="card__m-text">Зі знижкою</div>
-                <div class="card__m-money">
-                  <mark>${product.price - product.discount}$</mark>
-                  <span>${product.discount}$</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        cardsContainer.insertAdjacentHTML("beforeend", cardHTML); // Додаємо картки до контейнера
+        if (!selectedFilters[filterType]) {
+          selectedFilters[filterType] = [];
+        }
+
+        if (e.target.checked) {
+          if (!selectedFilters[filterType].includes(filterValue)) {
+            selectedFilters[filterType].push(filterValue);
+          }
+        } else {
+          selectedFilters[filterType] = selectedFilters[filterType].filter(
+            (value) => value !== filterValue
+          );
+        }
+
+        console.log("Оновлені фільтри:", selectedFilters); // Додаткове логування для налагодження
+        applyFilters();
       });
-    } else {
-      console.error("Очікувався масив продуктів, отримано:", data);
-    }
-  })
-  .catch((error) => {
-    console.error("Помилка запиту до API:", error);
-    document.getElementById("api-response").innerText = "Помилка запиту до API";
-  });
-
-// ---------------------------------------
-
-// ------------------------уже майже працює----------------------
-
-// let currentPage = 1;
-// const productsPerPage = 20;
-// let searchTerm = '';
-// const showButton = document.querySelector(".show");
-// const cardsContainer = document.querySelector(".cards");
-// const input = document.getElementById("searchInput");
-
-// // Клас для створення карток
-// class AddCard {
-//   addCard(product) {
-//     const { imagePath, model, description, reviews, price, discount } = product;
-//     return `
-//       <div class="card">
-//         <div class="card__images">
-//           <img src="${imagePath}" alt="${model}" />
-//         </div>
-//         <div class="card__hr"></div>
-//         <p class="card__title">${model}</p>
-//         <p class="card__descr">${description}</p>
-//         <div class="card__rating">
-//           <div class="rating__span">
-//             <span>${"&#9733;".repeat(5)}</span>
-//           </div>
-//           <div class="card__comment">(${reviews} відгуків)</div>
-//         </div>
-//         <div class="card__m">
-//           <div class="card__m-left">
-//             <div class="card__m-text">Ціна</div>
-//             <div class="card__m-money">${price}$</div>
-//           </div>
-//           <div class="card__m-left">
-//             <div class="card__m-text">Зі знижкою</div>
-//             <div class="card__m-money">
-//               <mark>${price - discount}$</mark><span>${discount}$</span>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     `;
-//   }
-// }
-
-// Клас для створення карток
-// Клас для створення карток
-// Клас для створення карток
-class AddCard {
-  addCard(product) {
-    const { imagePath, model, description, reviews, price, discount } = product;
-    return `
-      <div class="card">
-        <div class="card__images">
-          <img src="${imagePath}" alt="${model}" />
-        </div>
-        <div class="card__hr"></div>
-        <p class="card__title">${model}</p>
-        <p class="card__descr">${description}</p>
-        <div class="card__rating">
-          <div class="rating__span">
-            <span>${"&#9733;".repeat(5)}</span>
-          </div>
-          <div class="card__comment">(${reviews} відгуків)</div>
-        </div>
-        <div class="card__m">
-          <div class="card__m-left">
-            <div class="card__m-text">Ціна</div>
-            <div class="card__m-money">${price}$</div>
-          </div>
-          <div class="card__m-left">
-            <div class="card__m-text">Зі знижкою</div>
-            <div class="card__m-money">
-              <mark>${price - discount}$</mark><span>${discount}$</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-}
-
-const a1 = new AddCard();
-let currentPage = 1; // Початкова сторінка
-const productsPerPage = 20; // Кількість продуктів на сторінку
-let searchTerm = ""; // Пошуковий термін (якщо є)
-
-// Елементи для кнопок
-const showButton = document.querySelector(".show");
-const closeButton = document.querySelector(".btn-close"); // Кнопка закриття
-const cardsContainer = document.querySelector(".cards");
-
-// Функція для отримання продуктів з API
-const fetchProducts = async (page = 1, search = "") => {
-  try {
-    const response = await fetch(
-      `http://localhost:3000/api/smartphones?page=${page}&limit=${productsPerPage}&search=${search}`
-    );
-    const data = await response.json();
-    return data.products; // Отримуємо масив продуктів з відповіді API
-  } catch (error) {
-    console.error("Помилка запиту до API:", error);
-    return []; // Повертаємо порожній масив у разі помилки
-  }
-};
-
-// Функція для показу наступних 20 продуктів
-const showNext20Items = async () => {
-  const products = await fetchProducts(currentPage, searchTerm); // Отримуємо наступну сторінку продуктів
-  if (products.length > 0) {
-    products.forEach((product) => {
-      cardsContainer.insertAdjacentHTML("beforeend", a1.addCard(product)); // Додаємо картки до контейнера
     });
-    currentPage++; // Збільшуємо номер сторінки
-  }
 
-  // Перевіряємо, чи більше немає продуктів для завантаження
-  if (products.length < productsPerPage) {
-    // Якщо більше немає продуктів, ховаємо кнопку "Показати ще" і показуємо "Скрить"
-    showButton.classList.add("dn"); // Ховати кнопку "Показати ще"
-    closeButton.classList.remove("dn"); // Показати кнопку "Скрить"
-  }
-};
-
-// Функція для початкового відображення продуктів
-const displayApiProducts = async () => {
-  const products = await fetchProducts(1, searchTerm); // Отримуємо продукти для першої сторінки
-  cardsContainer.innerHTML = ""; // Очищаємо контейнер
-  if (products.length > 0) {
-    products.forEach((product) => {
-      cardsContainer.insertAdjacentHTML("beforeend", a1.addCard(product)); // Додаємо картки до контейнера
-    });
-    currentPage = 2; // Збільшуємо сторінку для наступного запиту
-    showButton.classList.remove("dn"); // Показати кнопку "Показати ще"
-    closeButton.classList.add("dn"); // Сховати кнопку "Скрить"
-  } else {
-    cardsContainer.innerHTML = "<p>Нічого не знайдено</p>"; // Якщо результатів немає
-    showButton.classList.add("dn"); // Сховати кнопку "Показати ще"
-  }
-};
-
-// Функція для закриття всіх продуктів і показу тільки 20 початкових
-const closeAllProducts = () => {
-  currentPage = 1;
-  displayApiProducts(); // Показати тільки перші 20 продуктів
-  closeButton.classList.add("dn"); // Сховати кнопку "Скрить"
-  showButton.classList.remove("dn"); // Показати кнопку "Показати ще"
-};
+  // Ініціалізація продуктів при завантаженні сторінки
+  fetchProducts();
+});
 
 // Подія для кнопки "Показати ще"
-showButton.addEventListener("click", showNext20Items);
+showButton.addEventListener("click", fetchProducts);
 
-// Подія для кнопки "Скрить"
-closeButton.addEventListener("click", closeAllProducts);
-
-// Подія для пошуку продуктів за ключовими словами
-input.addEventListener("input", function (e) {
-  searchTerm = e.target.value.trim().toLowerCase(); // Оновлюємо пошуковий термін
+// Подія для кнопки "Закрити"
+btnCloseButton.addEventListener("click", () => {
   currentPage = 1; // Скидаємо поточну сторінку
-  displayApiProducts(); // Очищаємо контейнер і показуємо результати пошуку
+  selectedFilters.search = ""; // Скидаємо пошуковий термін
+  searchInput.value = ""; // Очищаємо поле пошуку
+
+  isResettingFilters = true; // Встановлюємо флаг перед скиданням фільтрів
+
+  // Скидаємо фільтри (відключаємо всі чекбокси)
+  document
+    .querySelectorAll('.filter-option input[type="checkbox"]')
+    .forEach((checkbox) => {
+      checkbox.checked = false; // Вимикаємо всі чекбокси
+    });
+
+  // Скидаємо значення фільтрів
+  Object.keys(selectedFilters).forEach((key) => {
+    if (Array.isArray(selectedFilters[key])) {
+      selectedFilters[key] = [];
+    } else {
+      selectedFilters[key] = null;
+    }
+  });
+
+  isResettingFilters = false; // Скидаємо флаг після скидання фільтрів
+
+  // Очищаємо контейнер карток і завантажуємо перші 21 продукт
+  cardsContainer.innerHTML = "";
+  fetchProducts(); // Викликаємо для завантаження початкових продуктів
+
+  // Ховаємо кнопку "Закрити" та показуємо "Показати ще"
+  showButton.classList.remove("dn");
+  btnCloseButton.classList.add("dn");
 });
 
-// Початкове завантаження продуктів при завантаженні сторінки
-document.addEventListener("DOMContentLoaded", displayApiProducts);
-// ---------
+// Фільтрація за введеним значенням (пошук) з дебаунсом
+searchInput.addEventListener(
+  "input",
+  debounce(function (e) {
+    selectedFilters.search = e.target.value.trim().toLowerCase();
+    console.log("Пошуковий термін:", selectedFilters.search); // Додаткове логування для налагодження
+    applyFilters();
+  }, 300)
+);
