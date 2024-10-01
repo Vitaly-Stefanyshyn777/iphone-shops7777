@@ -504,7 +504,7 @@ input[type="range"] {
 
 /* Форма пошуку або вводу */
 .wrapper__input {
-    padding: 1.1rem;
+    /* padding: 0.5rem; */
     border: 0.2rem solid #999;
     border-radius: 1vw;
     font-size: 3.5rem;
@@ -1173,7 +1173,7 @@ h6 {
     align-items: stretch;
     background-color: #333;
     border-radius: 22px;
-    padding: 2.4rem;
+    padding: 1.2rem;
     color: #ccc;
     font-family: 'Arial', sans-serif;
     flex-direction: row-reverse;
