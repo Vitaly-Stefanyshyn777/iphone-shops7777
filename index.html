@@ -1,10 +1,12 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Магазин смартфонів</title>
+    <meta name="description"
+        content="Магазин смартфонів з фільтрами та можливістю пошуку за маркою, ціною та характеристиками.">
     <link rel="stylesheet" href="./style.css" />
     <script src="./main.js" defer></script>
 </head>
@@ -17,11 +19,11 @@
                 <div class="tab" onclick="setActive(this)">По марці</div>
             </div>
 
-            <!-- Блок з фільтрами -->
+           
             <div class="filter-container">
-                <h3>Фільтер</h3>
+                <h3>Фільтри смартфонів</h3>
 
-                <!-- Фільтр ціни -->
+               
                 <div class="filter-wrapper">
                     <label class="filter-label" for="min-price">Ціна</label>
                     <div class="price-inputs">
@@ -36,14 +38,13 @@
                     </div>
                 </div>
 
-                <!-- Повторення блоку для решти фільтрів -->
-
+       
             </div>
         </div>
 
-        <!-- Основний блок з картками товарів -->
+
         <div class="wrapper">
-            <input class="wrapper__input" type="text" id="searchInput" placeholder="Введите модель телефона" />
+            <input class="wrapper__input" type="text" id="searchInput" placeholder="Введіть модель телефону" />
 
             <div class="cards">
                 <div class="card">
@@ -53,8 +54,7 @@
                     <div class="card__hr"></div>
                     <p class="card__title">iPhone 13</p>
                     <p class="card__descr">
-                        iPhone 13 - це нова модель телефону від Apple із передовими
-                        технологіями та функціям.
+                        iPhone 13 - це нова модель телефону від Apple із передовими технологіями та функціями.
                     </p>
                     <div class="card__rating">
                         <div class="rating__span">
@@ -72,24 +72,217 @@
                             <div class="card__m-money">2000$</div>
                         </div>
                         <div class="card__m-left">
-                            <div class="card__m-text">Зі скидкою</div>
+                            <div class="card__m-text">Зі знижкою</div>
                             <div class="card__m-money">
                                 <mark>1 800$</mark><span>200$</span>
                             </div>
                         </div>
                     </div>
-                    <!-- <img class="img-svg" src="img/0012.svg" alt="Icon 0012" />
-                    <img class="img-b5" src="img/b5.svg" alt="Icon b5" /> -->
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Кнопки під картками -->
-    <button class="show">показати ще</button>
-    <button class="btn-close dn">закрити</button>
+
+    <button class="show">Показати ще</button>
+    <button class="btn-close dn">Закрити</button>
     <pre id="api-response"></pre>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const minPriceInput = document.getElementById('min-price');
+            const maxPriceInput = document.getElementById('max-price');
+            const minRangeInput = document.getElementById('min-range');
+            const maxRangeInput = document.getElementById('max-range');
+
+            // Оновлення полів введення при зміні діапазонів
+            minRangeInput.addEventListener('input', () => {
+                minPriceInput.value = minRangeInput.value;
+            });
+
+            maxRangeInput.addEventListener('input', () => {
+                maxPriceInput.value = maxRangeInput.value;
+            });
+
+            // Оновлення діапазонів при зміні полів введення
+            minPriceInput.addEventListener('input', () => {
+                minRangeInput.value = minPriceInput.value;
+            });
+
+            maxPriceInput.addEventListener('input', () => {
+                maxRangeInput.value = maxPriceInput.value;
+            });
+        });
+    </script>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фільтрація продуктів</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./main.js" defer></script>
+</head>
+
+<!-- Слайдер верхній -->
+
+<body>
+
+<header class="header">
+    <div class="header_top">
+        <div class="container">
+            <div class="header__top__iner">
+                <nav class="menu">
+                    <ul class="menu__list">
+                        <li class="menu__item">
+                            <a href="#" class="menu__link">Магазини</a>
+                        </li>
+                        <li class="menu__item">
+                            <a href="#" class="menu__link">Акциї</a>
+                        </li>
+                        <li class="menu__item">
+                            <a href="#" class="menu__link">Знижки</a>
+                        </li>
+                    </ul>
+                </nav>
+                <a href="#" class="logo">
+                    <img src="./tops.png" alt="Logo" class="logo__img" width="360" height="120">
+                </a>
+                <div class="header__box">
+                    <p class="header__adress">Київ, вул. Науки 25</p>
+                    <ul class="user-list">
+                        <li class="user-list__item">
+                            <a href="#" class="user-list_link">
+                                <i class="fas fa-heart"></i></a>
+                            <img src="./user.svg" alt="" width="24" height="24">
+                        </li>
+                        <li class="user-list__item">
+                            <a href="#" class="user-list_link">
+                                <i class="fas fa-user"></i></a>
+                            <img src="./heart.svg" alt="" width="24" height="24">
+                        </li>
+                        <li class="user-list__item">
+                            <a href="#" class="user-list_link">
+                                <i class="fas fa-shopping-cart"></i><span class="cart-count">1</span></a>
+                            <img src="./shopping-cart.svg" alt="" width="24" height="24">
+                            <div class="basket_num">1</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="heder_bottom">
+        <div class="heder__bottom-inner">
+            <div class="container">
+                <ul class="menu-categories">
+                    <li class="menu-categories__item"><a href="#" class="menu-categories-link">Ремонт</a></li>
+                    <li class="menu-categories__item"><a href="#" class="menu-categories-link">Гравіювання</a></li>
+                    <li class="menu-categories__item"><a href="#" class="menu-categories-link active">Trade IN</a>
+                    </li>
+                    <li class="menu-categories__item"><a href="#" class="menu-categories-link">B2B</a></li>
+                    <li class="menu-categories__item"><a href="#" class="menu-categories-link">Кешбек</a></li>
+                    <li class="menu-categories__item"><a href="#" class="menu-categories-link">Акції</a></li>
+                    <li class="menu-categories__item"><a href="#" class="menu-categories-link">Уцінка</a></li>
+                    <li class="menu-categories__item"><a href="#" class="menu-categories-link">Новинки</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="first-slider-container">
+    <div class="first-slider">
+        <img src="https://picsum.photos/700/700" alt="slide 1" />
+        <img src="https://picsum.photos/700/701" alt="slide 2" />
+        <img src="https://picsum.photos/700/702" alt="slide 3" />
+    </div>
+    <button class="first-prev-button">&larr;</button>
+    <button class="first-next-button">&rarr;</button>
+    <div class="first-slider-dots"></div>
+</div>
+<!-- Слайдер верхній -->
+
+<!-- Слайдер нижній -->
+<main>
+    <div class="product-slider-block">
+        <button class="prev-button">&lArr;</button>
+        <div class="product-slider">
+            <!-- Спочатку картки завантажуються з JavaScript -->
+        </div>
+        <button class="next-button">&rArr;</button>
+    </div>
+    <div class="load-more-container">
+    </div>
+</main>
+
+<!-- Слайдер нижній -->
+
+    <div class="container-v">
+        <div>
+            <div class="tabs-wrapper">
+                <div class="tab active" onclick="setActive(this)">Параметри</div>
+                <div class="tab" onclick="setActive(this)">По марці</div>
+            </div>
+
+            <!-- Блок з фільтрами -->
+            <div class="filter-container">
+                <h3>Фільтр</h3>
+
+                <!-- Фільтр ціни -->
+                <div class="filter-wrapper">
+                    <label class="filter-label" for="min-price">Ціна</label>
+                    <div class="price-inputs">
+                        <input type="number" id="min-price" value="1999" min="0">
+                        <span>-</span>
+                        <input type="number" id="max-price" value="94999" min="0">
+                    </div>
+                    <div class="price-range">
+                        <input type="range" id="min-range" min="0" max="100000" value="1999">
+                        <input type="range" id="max-range" min="0" max="100000" value="94999">
+                    </div>
+                </div>
+
+                <!-- Інші фільтри будуть додані динамічно через JavaScript -->
+            </div>
+        </div>
+
+        <!-- Основний блок з картками товарів -->
+        <div class="wrapper">
+            <input class="wrapper__input" type="text" id="searchInput" placeholder="Введіть модель телефону" />
+
+<!-- ----------------------------кошик------------------------------------------------ -->
+        <div class="cart-button">
+            <span>Твій кошик</span>
+            <img src="cart-icon.png" alt="cart">
+        </div>
+        <!-- ----------------------------кошик------------------------------------------------ -->
+
+
+            <div class="cards">
+                <!-- Картки будуть додані динамічно через JavaScript -->
+            </div>
+        </div>
+         
+        
+        
+    </div>
+    <!-- Кнопки під картками -->
+    <button class="show">Показати ще</button>
+    <button class="btn-close dn">Закрити</button>
+    <div class="pagination-container"></div>
+    <!-- Елемент для відображення відповіді API (для відладки) -->
+    <pre id="api-response"></pre>
+
+    <!-- Індикатор завантаження -->
+    <div id="loading" class="dn">Завантаження...</div>
 </body>
 
 </html>

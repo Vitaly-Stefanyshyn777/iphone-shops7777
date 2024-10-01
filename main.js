@@ -498,3 +498,331 @@ searchInput.addEventListener(
     applyFilters();
   }, 300)
 );
+
+// ------------------------------------Слайдер-нижній------------------------------------------------------------
+
+const slider = document.querySelector(".product-slider");
+const prevButton = document.querySelector(".prev-button");
+const nextButton = document.querySelector(".next-button");
+
+const defaultProducts = [
+  {
+    model: "iPhone 7 Pro",
+    price: 1100,
+    description:
+      "iPhone 7 Pro - это улучшенная версия iPhone 7 с более мощными характеристиками.",
+    discount: 110,
+    imagePath: "img/iphone7pro.jpg",
+    reviews: 140,
+  },
+  {
+    model: "iPhone 8",
+    price: 1200,
+    description:
+      "iPhone 8 - это обновленная модель с улучшенной камерой и производительностью.",
+    discount: 120,
+    imagePath: "img/iphone8.jpg",
+    reviews: 200,
+  },
+  {
+    model: "iPhone 8 Pro",
+    price: 1300,
+    description:
+      "iPhone 8 Pro - это профессиональная версия iPhone 8 с дополнительными функциями и улучшенными характеристиками.",
+    discount: 130,
+    imagePath: "img/iphone8pro.jpg",
+    reviews: 220,
+  },
+  {
+    model: "iPhone X",
+    price: 1400,
+    description:
+      "iPhone X - это революционный смартфон от Apple с безрамочным дизайном и Face ID.",
+    discount: 140,
+    imagePath: "img/iphonex.jpg",
+    reviews: 250,
+  },
+  {
+    model: "iPhone X Pro",
+    price: 1500,
+    description:
+      "iPhone X Pro - это улучшенная версия iPhone X с дополнительными функциями и производительностью.",
+    discount: 150,
+    imagePath: "img/iphonexpro.jpg",
+    reviews: 260,
+  },
+  {
+    model: "iPhone XR",
+    price: 1300,
+    description:
+      "iPhone XR - это доступная версия iPhone X с LCD дисплеем и отличной производительностью.",
+    discount: 130,
+    imagePath: "img/iphonexr.jpg",
+    reviews: 300,
+  },
+  {
+    model: "iPhone 11",
+    price: 1600,
+    description:
+      "iPhone 11 - это обновленная модель с двойной камерой и новым процессором A13 Bionic.",
+    discount: 160,
+    imagePath: "img/iphone11.jpg",
+    reviews: 400,
+  },
+  {
+    model: "iPhone 11 Pro",
+    price: 1800,
+    description:
+      "iPhone 11 Pro - это профессиональная модель с тройной камерой и улучшенной производительностью.",
+    discount: 180,
+    imagePath: "img/iphone11pro.jpg",
+    reviews: 450,
+  },
+  {
+    model: "iPhone 11 Pro Max",
+    price: 2000,
+    description:
+      "iPhone 11 Pro Max - это самая мощная версия iPhone 11 с большим дисплеем и улучшенной батареей.",
+    discount: 200,
+    imagePath: "img/iphone11promax.jpg",
+    reviews: 500,
+  },
+  {
+    model: "iPhone 12",
+    price: 1700,
+    description:
+      "iPhone 12 - это новый iPhone с поддержкой 5G и новым дизайном.",
+    discount: 170,
+    imagePath: "img/iphone12.jpg",
+    reviews: 550,
+  },
+  {
+    model: "iPhone 12 Mini",
+    price: 1500,
+    description:
+      "iPhone 12 Mini - это компактная версия iPhone 12 с теми же функциями в меньшем корпусе.",
+    discount: 150,
+    imagePath: "img/iphone12mini.jpg",
+    reviews: 600,
+  },
+  {
+    model: "iPhone 12 Pro",
+    price: 1900,
+    description:
+      "iPhone 12 Pro - это профессиональная версия iPhone 12 с улучшенной камерой и LiDAR сканером.",
+    discount: 190,
+    imagePath: "img/iphone12pro.jpg",
+    reviews: 650,
+  },
+  {
+    model: "iPhone 12 Pro Max",
+    price: 2100,
+    description:
+      "iPhone 12 Pro Max - это самая мощная версия iPhone 12 с большим дисплеем и улучшенной камерой.",
+    discount: 210,
+    imagePath: "img/iphone12promax.jpg",
+    reviews: 700,
+  },
+  {
+    model: "iPhone 13",
+    price: 1800,
+    description:
+      "iPhone 13 - это новая модель телефона от Apple с передовыми технологиями и функциями.",
+    discount: 180,
+    imagePath: "img/iphone13.jpg",
+    reviews: 138,
+  },
+  {
+    model: "iPhone 13 Mini",
+    price: 1600,
+    description:
+      "iPhone 13 Mini - это компактная версия iPhone 13 с теми же функциями в меньшем корпусе.",
+    discount: 160,
+    imagePath: "img/iphone13mini.jpg",
+    reviews: 150,
+  },
+  {
+    model: "iPhone 13 Pro Max",
+    price: 2300,
+    description:
+      "iPhone 13 Pro Max - это самая мощная версия iPhone 13 с большим дисплеем и улучшенной камерой.",
+    discount: 230,
+    imagePath: "img/iphone13promax.jpg",
+    reviews: 250,
+  },
+  {
+    model: "iPhone 14",
+    price: 1900,
+    description:
+      "iPhone 14 - это новая модель с улучшенной производительностью и дополнительными функциями.",
+    discount: 190,
+    imagePath: "img/iphone14.jpg",
+    reviews: 300,
+  },
+  {
+    model: "iPhone 14 Pro",
+    price: 2200,
+    description:
+      "iPhone 14 Pro - это профессиональная версия iPhone 14 с улучшенной камерой и новыми функциями.",
+    discount: 220,
+    imagePath: "img/iphone14pro.jpg",
+    reviews: 350,
+  },
+  {
+    model: "iPhone 14 Pro Max",
+    price: 2400,
+    description:
+      "iPhone 14 Pro Max - это самая мощная версия iPhone 14 с большим дисплеем и улучшенной батареей.",
+    discount: 240,
+    imagePath: "img/iphone14promax.jpg",
+    reviews: 400,
+  },
+  {
+    model: "iPhone 15",
+    price: 2000,
+    description:
+      "iPhone 15 - это новая модель с улучшенными характеристиками и передовыми технологиями.",
+    discount: 200,
+    imagePath: "img/iphone15.jpg",
+    reviews: 500,
+  },
+  {
+    model: "iPhone 15 Pro",
+    price: 2300,
+    description:
+      "iPhone 15 Pro - это профессиональная версия iPhone 15 с улучшенной производительностью и новыми функциями.",
+    discount: 230,
+    imagePath: "img/iphone15pro.jpg",
+    reviews: 550,
+  },
+  {
+    model: "iPhone 15 Pro Max",
+    price: 2500,
+    description:
+      "iPhone 15 Pro Max - это самая мощная версия iPhone 15 с большим дисплеем и улучшенной камерой.",
+    discount: 250,
+    imagePath: "img/iphone15promax.jpg",
+    reviews: 600,
+  },
+];
+
+let currentProducts = defaultProducts.slice(0, 9); // Початково відображаємо 9 карток
+let currentStartIndex = 0; // Індекс, що визначає початок
+
+// Функція для очищення слайдера
+const clearSlider = () => {
+  slider.innerHTML = ""; // Очищаємо всі картки
+};
+
+// Функція для додавання карток у слайдер
+const addProductsToSlider = (defaultProducts) => {
+  defaultProducts.forEach((product) => {
+    const slide = document.createElement("div");
+    slide.classList.add("product-slide");
+
+    const img = document.createElement("img");
+    img.src = product.imagePath;
+    img.alt = product.model;
+
+    const title = document.createElement("h3");
+    title.textContent = product.model;
+
+    slide.appendChild(img);
+    slide.appendChild(title);
+    slider.appendChild(slide);
+  });
+};
+
+// Показуємо початкові 9 продуктів
+addProductsToSlider(currentProducts);
+
+// Функція для оновлення слайдера (видаляємо першу картку і додаємо нову в кінець)
+const updateSliderNext = () => {
+  currentStartIndex++;
+  if (currentStartIndex >= defaultProducts.length) {
+    currentStartIndex = 0; // Якщо досягли кінця, повертаємось на початок
+  }
+
+  currentProducts.shift(); // Видаляємо перший елемент з масиву
+  currentProducts.push(defaultProducts[currentStartIndex]); // Додаємо новий елемент
+
+  clearSlider();
+  addProductsToSlider(currentProducts);
+};
+
+// Функція для оновлення слайдера (видаляємо останню картку і додаємо нову на початок)
+const updateSliderPrev = () => {
+  currentStartIndex--;
+  if (currentStartIndex < 0) {
+    currentStartIndex = defaultProducts.length - 1; // Якщо на початку, переходимо на кінець
+  }
+
+  currentProducts.pop(); // Видаляємо останній елемент
+  currentProducts.unshift(defaultProducts[currentStartIndex]); // Додаємо новий на початок
+
+  clearSlider();
+  addProductsToSlider(currentProducts);
+};
+
+// Додаємо обробники подій для кнопок
+nextButton.addEventListener("click", updateSliderNext);
+prevButton.addEventListener("click", updateSliderPrev);
+
+// ------------------------------------Слайдер-нижній------------------------------------------------------------
+
+// Елементи DOM для першого слайдера
+const firstSliderWrapper = document.querySelector(".first-slider");
+const firstPrevButton = document.querySelector(".first-prev-button");
+const firstNextButton = document.querySelector(".first-next-button");
+const firstSliderImages = document.querySelectorAll(".first-slider img");
+
+let firstCurrentIndex = 0;
+const totalFirstSlides = firstSliderImages.length;
+let autoSlideInterval;
+
+// Функція для оновлення слайдера
+const updateFirstSlider = () => {
+  firstSliderWrapper.style.transform = `translateX(-${
+    firstCurrentIndex * 100
+  }%)`; // Переміщення слайдів на 100% ширини контейнера
+};
+
+// Обробник події для кнопки "вперед" для першого слайдера
+firstNextButton.addEventListener("click", () => {
+  firstCurrentIndex = (firstCurrentIndex + 1) % totalFirstSlides;
+  updateFirstSlider();
+  resetAutoSlide(); // Скидаємо автопрогортання після ручного втручання
+});
+
+// Обробник події для кнопки "назад" для першого слайдера
+firstPrevButton.addEventListener("click", () => {
+  firstCurrentIndex =
+    (firstCurrentIndex - 1 + totalFirstSlides) % totalFirstSlides;
+  updateFirstSlider();
+  resetAutoSlide(); // Скидаємо автопрогортання після ручного втручання
+});
+
+// Функція для автоматичного прогортання слайдів
+const autoSlide = () => {
+  autoSlideInterval = setInterval(() => {
+    firstCurrentIndex = (firstCurrentIndex + 1) % totalFirstSlides;
+    updateFirstSlider();
+  }, 3000); // Зміна слайда кожні 3 секунди
+};
+
+// Функція для скидання таймера автопрогортання
+const resetAutoSlide = () => {
+  clearInterval(autoSlideInterval);
+  autoSlide(); // Запуск автопрогортання знову після ручного втручання
+};
+
+// Ініціалізація слайдера та запуск автопрогортання
+updateFirstSlider();
+autoSlide();
+
+
+// ------------------------------------Слайдер-нижній------------------------------------------------------------
+
+// ---------------------------------------верхній-хедер-------------------------------------------------------------
+
+// ---------------------------------------верхній-хедер-------------------------------------------------------------
