@@ -513,13 +513,13 @@ input[type="range"] {
     max-width: 100%;
     /* display: flex; */
     box-sizing: border-box;
-    /* height: 100px;
+    /* height: 100px;*/
 }
 
 .wrapper {
   margin: 1rem;
-  /* display: grid;
-  justify-content: end; */
+  display: grid;
+   justify-content: end; 
 }
 
 /* Карти продуктів */
@@ -529,12 +529,11 @@ input[type="range"] {
   gap: 1rem;
   align-items: flex-start;
   justify-content: center;
-  border: 0.3rem solid #e5e5e5;
 }
 
  .card {
   position: relative;
-  border: 0.1rem solid #e5e5e5;
+  border: 0.3rem solid #e5e5e5;
   background: var(--color-white);
   padding: 2rem;
   border-radius: 1.5rem;
